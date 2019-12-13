@@ -7,7 +7,7 @@ import { AbstractNodeFactory } from 'storm-react-diagrams'
 
 import ActionItem from '../../common/action'
 import ConditionItem from '../../common/condition'
-import { SkillDefinition } from '../../sidePanel/FlowTools'
+import { SkillDefinition } from '../../SidePanel/FlowTools'
 
 import { BaseNodeModel } from './BaseNodeModel'
 import { StandardIncomingPortModel, StandardOutgoingPortModel, StandardPortWidget } from './Ports'
