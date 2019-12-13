@@ -15,6 +15,7 @@ import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
+import NewBuilder from '~/views/NewBuilder'
 import Notifications from '~/views/Notifications'
 
 import GuidedTour from './GuidedTour'
@@ -171,9 +172,14 @@ class Layout extends React.Component<ILayoutProps> {
             <div>
               <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
                 <Switch>
-                  <Route exact path="/" render={() => <Redirect to="/flows" />} />
+                  <Route
+                    exact
+                    path="/"
+                    render={() => (window['FLOWV2'] ? <Redirect to="/builder" /> : <Redirect to="/flows" />)}
+                  />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
+                  <Route exact path="/builder/:flow*" component={NewBuilder} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                   <Route exact path="/notifications" component={Notifications} />
                   <Route exact path="/logs" component={Logs} />
