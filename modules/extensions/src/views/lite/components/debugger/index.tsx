@@ -13,6 +13,7 @@ import { loadSettings } from './utils'
 import { Error } from './views/Error'
 import { Inspector } from './views/Inspector'
 import Summary from './views/Summary'
+import { Triggers } from './views/Triggers'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
 import Header from './Header'
@@ -222,11 +223,13 @@ export class Debugger extends React.Component<Props, State> {
 
   renderEvent() {
     const eventError = _.get(this.state, 'event.state.__error')
+    const ndu = _.get(this.state, 'event.ndu')
 
     return (
       <div className={style.content}>
         <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
           <Tab id="basic" title="Summary" panel={<Summary event={this.state.event} />} />
+          {ndu && <Tab id="triggers" title="Triggers" panel={<Triggers ndu={ndu} />} />}
           <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
           {eventError && (
             <Tab
