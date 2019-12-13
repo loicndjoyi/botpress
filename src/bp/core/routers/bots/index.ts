@@ -227,6 +227,7 @@ export class BotsRouter extends CustomRouter {
               window.BOT_LOCKED = ${!!bot.locked};
               window.WORKSPACE_ID = "${workspaceId}";
               window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
+              window.FLOWV2 = ${!!bot['flowv2']}
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
               // End

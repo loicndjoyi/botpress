@@ -216,7 +216,7 @@ function electIntent(input: PredictStep): PredictStep {
     })
     .orderBy('confidence', 'desc')
     .uniqBy(p => p.label)
-    .filter(p => input.includedContexts.includes(p.context))
+    // .filter(p => input.includedContexts.includes(p.context))
     .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
     .value()
 
