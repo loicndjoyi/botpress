@@ -28,6 +28,19 @@ export class DialogEngine {
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
   ) {}
 
+  private _saveLastGoal(event: IO.IncomingEvent, flowName) {
+    const [topic, goal] = flowName.split('/')
+    const { lastGoals } = event.state.session
+
+    // there is a topic
+    if (goal !== undefined) {
+      const last = lastGoals[lastGoals.length - 1]
+      if (!last || last.goalName !== goal) {
+        event.state.session.lastGoals.push({ topicName: topic, goalName: goal })
+      }
+    }
+  }
+
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
     await this._loadFlows(botId)
@@ -35,6 +48,8 @@ export class DialogEngine {
     const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
     const currentFlow = this._findFlow(botId, context.currentFlow)
     const currentNode = this._findNode(botId, currentFlow, context.currentNode)
+
+    this._saveLastGoal(event, context.currentFlow)
 
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
@@ -190,7 +205,7 @@ export class DialogEngine {
   }
 
   private initializeContext(event) {
-    const defaultFlow = this._findFlow(event.botId, 'main.flow.json')
+    const defaultFlow = this._findFlow(event.botId, event.ndu ? 'Built-In/welcome.flow.json' : 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.__stacktrace.push({ flow: defaultFlow.name, node: startNode.name })
     event.state.context = {
@@ -340,7 +355,7 @@ export class DialogEngine {
     }
 
     // we build the flow path for showing the loop to the end-user
-    let recurringPath: string[] = []
+    const recurringPath: string[] = []
     const { node, flow } = loop[0]
     for (let i = 0, r = 0; i < stacktrace.length && r < 2; i++) {
       if (stacktrace[i].flow === flow && stacktrace[i].node === node) {
