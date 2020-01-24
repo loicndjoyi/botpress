@@ -8,6 +8,7 @@ import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
+import { FlowService } from './dialog/flow/service'
 
 import { IDisposeOnExit } from '../../common/typings'
 import { ConfigProvider } from '../config/config-loader'
@@ -54,11 +55,12 @@ export class CMSService implements IDisposeOnExit {
     private logger: Logger,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
-  ) {}
+  ) { }
 
   disposeOnExit() {
     this.sandbox && this.sandbox.dispose()
@@ -217,6 +219,13 @@ export class CMSService implements IDisposeOnExit {
 
     const dbElements = await query.offset(from)
     const elements: ContentElement[] = dbElements.map(this.transformDbItemToApi)
+    const flows = await this.flowService.loadAll(botId)
+    const flowsToString = JSON.stringify(flows);
+
+    const countElementsUsage = elements.map(el => {
+      el.usedBy = (flowsToString.match(new RegExp(el.id, "g")) || []).length
+      return el;
+    })
 
     return Promise.map(elements, el => (language ? this._translateElement(el, language) : el))
   }
